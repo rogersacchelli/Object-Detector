@@ -77,24 +77,30 @@ def get_objects(img, windows, roi=IMAGE_ROI):
 
 
 def get_objects_fast(img, roi=IMAGE_ROI, scale=SCALING_FACTOR, cells_per_step=2,
-                     pixels_per_cell = 8):
+                     pixels_per_cell=8):
+
+    y_start = int(IMAGE_ROI[1] * img.shape[0])
+    x_start = int((IMAGE_ROI[0] * img.shape[1]))
+
+    y_end = img.shape[0]
+    x_end = img.shape[1]
 
     for s in scale:
-        roi_image = img[int(round(roi[1] * img.shape[0], 0)):, int(round(roi[0] * img.shape[1], 0)):, :]
+        roi_image = img[y_start:y_end, x_start:x_end, :]
         resized_img = cv2.resize(roi_image, (int(roi_image.shape[1] / s), int(roi_image.shape[0] / s)))
 
         if COLOR_SPACE == 'RGB':
             img_clr_spc = resized_img
         elif COLOR_SPACE == 'HSV':
-            img_clr_spc = cv2.imread(resized_img, cv2.COLOR_RGB2HSV)
+            img_clr_spc = cv2.cvtColor(cv2.imread(resized_img), cv2.COLOR_RGB2HSV)
         elif COLOR_SPACE == 'LUV':
-            img_clr_spc = cv2.imread(resized_img, cv2.COLOR_RGB2LUV)
+            img_clr_spc = cv2.cvtColor(cv2.imread(resized_img), cv2.COLOR_RGB2LUV)
         elif COLOR_SPACE == 'LAB':
-            img_clr_spc = cv2.imread(resized_img, cv2.COLOR_RGB2LAB)
+            img_clr_spc = cv2.cvtColor(cv2.imread(resized_img), cv2.COLOR_RGB2LAB)
         elif COLOR_SPACE == 'YUV':
-            img_clr_spc = cv2.imread(resized_img, cv2.COLOR_RGB2YUV)
+            img_clr_spc = cv2.cvtColor(cv2.imread(resized_img), cv2.COLOR_RGB2YUV)
         elif COLOR_SPACE == 'YCrCb':
-            img_clr_spc = cv2.imread(resized_img, cv2.COLOR_RGB2YCrCb)
+            img_clr_spc = cv2.cvtColor(resized_img, cv2.COLOR_RGB2YCrCb)
 
         hog_ch1 = get_hog(img=img_clr_spc, feature_vector=False, channel=0)
         hog_ch2 = get_hog(img=img_clr_spc, feature_vector=False, channel=1)
@@ -132,17 +138,16 @@ def get_objects_fast(img, roi=IMAGE_ROI, scale=SCALING_FACTOR, cells_per_step=2,
                 test_prediction = clf.predict(test_features)
                 #cv2.imshow('evaluated', subimg)
 
-                if test_prediction == 1:
-                    #cv2.imshow('predicted', subimg)
+                if test_prediction == 0:
+
                     xbox_left = np.int(xleft * s)
                     ytop_draw = np.int(ytop * s)
                     win_draw = np.int(WIN_SIZE * s)
-                    cv2.rectangle(resized_img, (xbox_left, ytop_draw + int(round(roi[1] * img.shape[0], 0))),
-                                  (xbox_left + win_draw, ytop_draw + win_draw + int(round(roi[1] * img.shape[0], 0)))
-                                  , (0, 0, 255), 6)
+                    cv2.rectangle(img, (xbox_left, ytop_draw + y_start),
+                                  (xbox_left + win_draw, ytop_draw + win_draw + y_start)
+                                  , (0, 255, 0), 2)
 
-    return resized_img
-
+    return img
 
 
 def draw_boxes(img, bboxes, color=(0, 255, 0), thick=1):
@@ -156,7 +161,7 @@ def draw_boxes(img, bboxes, color=(0, 255, 0), thick=1):
     return copy
 
 
-def add_heat(heatmap, bbox_list, threshold = 2):
+def add_heat(heatmap, bbox_list, threshold=2):
     # Iterate through list of bboxes
     for box in bbox_list:
         # Add += 1 for all pixels inside each bbox
@@ -189,7 +194,7 @@ def draw_labeled_bboxes(img, labels):
 clf, scaler = get_classifier()
 wins = get_windows()
 
-vid = imageio.get_reader('test_video.mp4', 'ffmpeg')
+vid = imageio.get_reader('project_video.mp4', 'ffmpeg')
 
 for i, img in enumerate(vid):
 
@@ -197,7 +202,7 @@ for i, img in enumerate(vid):
         img = cv2.resize(img, (720, 1280))
     # objects = get_objects(img, wins)
     objects = get_objects_fast(img)
-    cv2.imshow('output', objects)
+    cv2.imshow('output', cv2.cvtColor(objects, cv2.COLOR_BGR2RGB))
     heatmap = add_heat(np.zeros(shape=img[:, :, 0].shape, dtype=float), objects)
     labels = label(heatmap)
     #cv2.imshow('final', draw_labeled_bboxes(cv2.cvtColor(img, cv2.COLOR_RGB2BGR), labels))
