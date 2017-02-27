@@ -1,7 +1,7 @@
 # Object Detection
 
 [//]: # (Image References)
-[image1]: ./examples/car_not_car.png
+[image1]: ./output_images/car_not_car.png
 [test1_original]: ./output_images/test1.jpg
 [test1_y]: ./output_images/ycrcb_0.jpg
 [test1_cr]: ./output_images/ycrcb_1.jpg
