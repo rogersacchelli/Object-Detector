@@ -28,16 +28,25 @@ def get_hist(img, nbins=32, bins_range=(0, 256)):
     return np.concatenate((channel1_hist[0], channel2_hist[0], channel3_hist[0]))
 
 
-def get_hog(img, channel, ornt=9, pxl_per_cell=(8, 8), cells_per_blk=(2, 2), feature_vector=True):
+def get_hog(img, channel, ornt=9, pxl_per_cell=(8, 8), cells_per_blk=(2, 2), feature_vector=True, vis=False):
 
-    features = hog(img[:, :, channel],
-                   orientations=ornt,
-                   pixels_per_cell=pxl_per_cell,
-                   cells_per_block=cells_per_blk,
-                   transform_sqrt=True,
-                   feature_vector=feature_vector)
+    if vis:
+        return hog(img[:, :, channel],
+                       orientations=ornt,
+                       pixels_per_cell=pxl_per_cell,
+                       cells_per_block=cells_per_blk,
+                       transform_sqrt=True,
+                       visualise=vis,
+                       feature_vector=feature_vector)
 
-    return features
+    else:
+        return hog(img[:, :, channel],
+                           orientations=ornt,
+                           pixels_per_cell=pxl_per_cell,
+                           cells_per_block=cells_per_blk,
+                           transform_sqrt=True,
+                           visualise=vis,
+                           feature_vector=feature_vector)
 
 
 def get_spatial(img, size=(32, 32)):
