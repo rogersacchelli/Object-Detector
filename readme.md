@@ -140,7 +140,7 @@ The output of the heat_map function is a image with pixels marked with the numbe
 
 ## Final Result
 
-
+[![IMAGE ALT TEXT](http://img.youtube.com/vi/H21sEzgi6k4/0.jpg)](http://www.youtube.com/watch?v=H21sEzgi6k4)
 
 ### Discussion 
 
